@@ -1,0 +1,19 @@
+{
+  "name": "Bíblia Palavra Viva",
+  "short_name": "Palavra Viva",
+  "description": "Uma aplicação de leitura bíblica rápida, intuitiva e moderna.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fdfbf7",
+  "theme_color": "#271c19",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
