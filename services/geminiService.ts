@@ -1,22 +1,30 @@
 import { GoogleGenAI } from "@google/genai";
 
-// NOTE: In a production app, these calls should go through a backend to protect the API Key.
-// For this client-side demo, we assume the environment variable is available.
-// We use a safe check for process to avoid crashing in browsers where it might be undefined.
+// Safe access to environment variable that works in both Node.js and Browser environments
+// without crashing if 'process' is undefined.
 const getApiKey = () => {
   try {
-    return process.env.API_KEY || '';
+    // Check if process is defined (Node/Build env)
+    if (typeof process !== 'undefined' && process.env) {
+      return process.env.API_KEY || '';
+    }
+    return '';
   } catch (e) {
     return '';
   }
 };
 
 const apiKey = getApiKey();
+// Only initialize if we have a key, otherwise ai stays null
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 export const geminiService = {
   explainVerse: async (verseText: string, context: string): Promise<string> => {
-    if (!ai) return "Chave de API não configurada. Adicione sua chave Gemini para usar este recurso.";
+    // Specific check: If AI is null, it means the Key is missing in Vercel/Env
+    if (!ai) {
+      console.warn("API Key missing. Please add API_KEY to Vercel Environment Variables.");
+      return "Configuração necessária: Chave da IA não encontrada. Verifique as variáveis de ambiente na Vercel.";
+    }
 
     try {
       const model = 'gemini-2.5-flash';
@@ -35,9 +43,15 @@ export const geminiService = {
       });
 
       return response.text || "Não foi possível gerar uma explicação no momento.";
-    } catch (error) {
+    } catch (error: any) {
       console.error("Gemini Error:", error);
-      return "Erro ao conectar com a inteligência artificial. Verifique sua conexão.";
+      
+      // Check for common API key errors
+      if (error.toString().includes('400') || error.toString().includes('API key')) {
+         return "Erro de Permissão: Verifique se sua Chave de API é válida e está ativa.";
+      }
+
+      return "A conexão com a IA falhou. Tente novamente em instantes.";
     }
   }
 };
