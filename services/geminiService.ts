@@ -2,7 +2,16 @@ import { GoogleGenAI } from "@google/genai";
 
 // NOTE: In a production app, these calls should go through a backend to protect the API Key.
 // For this client-side demo, we assume the environment variable is available.
-const apiKey = process.env.API_KEY || '';
+// We use a safe check for process to avoid crashing in browsers where it might be undefined.
+const getApiKey = () => {
+  try {
+    return process.env.API_KEY || '';
+  } catch (e) {
+    return '';
+  }
+};
+
+const apiKey = getApiKey();
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 export const geminiService = {
