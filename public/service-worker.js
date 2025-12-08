@@ -6,7 +6,6 @@ const ASSETS_TO_CACHE = [
   '/icons/icon.svg'
 ];
 
-// Instalação do Service Worker
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -17,7 +16,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Ativação e limpeza de caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keyList) => {
@@ -33,12 +31,9 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Estratégia de Fetch: Cache First para assets, Network First para API
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Se for uma chamada para a API da Bíblia, usa estratégia Stale-While-Revalidate
-  // (Tenta pegar do cache rápido, mas atualiza em segundo plano se tiver rede)
   if (url.hostname.includes('bible-api.com')) {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
@@ -54,7 +49,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Para outros arquivos (JS, CSS, HTML), usa Cache First, falling back to Network
   event.respondWith(
     caches.match(event.request).then((response) => {
       return response || fetch(event.request);
